@@ -1,8 +1,18 @@
 package main
 
-import (
-	"testing"
-)
+import "testing"
+
+func TestEmptyString(t *testing.T) {
+	testCase(t, "", 0)
+}
+
+func TestOnlyWhitespaceShort(t *testing.T) {
+	testCase(t, " ", 0)
+}
+
+func TestOnlyWhitespaceLong(t *testing.T) {
+	testCase(t, "     ", 0)
+}
 
 func TestZero(t *testing.T) {
 	testCase(t, "0", 0)
@@ -14,6 +24,18 @@ func TestMinusZero(t *testing.T) {
 
 func TestPlusZero(t *testing.T) {
 	testCase(t, "+0", 0)
+}
+
+func TestLeadingZero(t *testing.T) {
+	testCase(t, "055", 55)
+}
+
+func TestMinusLeadingZero(t *testing.T) {
+	testCase(t, "-00032", -32)
+}
+
+func TestPlusLeadingZero(t *testing.T) {
+	testCase(t, "+0067", 67)
 }
 
 func TestSimple(t *testing.T) {

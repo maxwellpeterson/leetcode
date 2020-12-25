@@ -1,8 +1,6 @@
 package main
 
-import (
-	"testing"
-)
+import "testing"
 
 func TestConsecutiveStart(t *testing.T) {
 	testCase(t, []int{2, 7, 11, 15}, 9, []int{0, 1})
