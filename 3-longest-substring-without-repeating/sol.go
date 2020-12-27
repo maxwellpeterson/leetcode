@@ -23,7 +23,7 @@ func lengthOfLongestSubstring(input string) int {
 
 	// lengths[ii] is the length of the longest non-repeating substring that
 	// starts at index ii
-	lengths := make([]int, len(runes), len(runes))
+	lengths := make([]int, len(runes))
 	// Final element must have substring length of one
 	lengths[len(runes)-1] = 1
 
@@ -45,7 +45,7 @@ func lengthOfLongestSubstring(input string) int {
 
 func findNextIndex(runes []rune) []int {
 	nextIndex := map[rune]int{}
-	result := make([]int, len(runes), len(runes))
+	result := make([]int, len(runes))
 
 	for ii := len(runes) - 1; ii >= 0; ii-- {
 		rr := runes[ii]
