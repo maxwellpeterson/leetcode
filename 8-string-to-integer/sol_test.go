@@ -118,11 +118,11 @@ func TestPositiveBound(t *testing.T) {
 	testCase(t, "2147483647", 2147483647)
 }
 
-func TestAboveNegativeBound(t *testing.T) {
+func TestRightAboveNegativeBound(t *testing.T) {
 	testCase(t, "-2147483647", -2147483647)
 }
 
-func TestBelowPositiveBound(t *testing.T) {
+func TestRightBelowPositiveBound(t *testing.T) {
 	testCase(t, "2147483646", 2147483646)
 }
 

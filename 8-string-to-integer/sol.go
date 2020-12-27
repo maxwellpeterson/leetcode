@@ -2,8 +2,15 @@ package main
 
 import "math"
 
+const minIntQuotient = math.MinInt32 / 10
+const minIntRemainder = math.MinInt32 % 10
+const maxIntQuotient = math.MaxInt32 / 10
+const maxIntRemainder = math.MaxInt32 % 10
+
 func main() {}
 
+// Running time: O(n)
+// Memory usage: O(n) => Would be O(1) without string to slice conversion
 func myAtoi(input string) int {
 	// Convert input string to slice of runes to make
 	// indexing easier
@@ -42,7 +49,7 @@ func parseValue(runes []rune, isPositive bool) int {
 	for _, rr := range runes {
 		digit := parseDigit(rr)
 
-		// Stop parsing if we hit a non-digit (this could
+		// Stop parsing if we hit a non-digit (this could even
 		// potentially be the first rune)
 		if digit < 0 {
 			break
@@ -78,21 +85,18 @@ func parseDigit(rr rune) int {
 	return -1 // Couldn't find a match
 }
 
-// There is probably a better way to do this without using 64-bit integers...
+// There is probably a more elegant way to do this, but this should be pretty fast...
 func checkOverflow(value, digit int, isPositive bool) (adjusted int, overflow bool) {
-	// Safely compute new value as 64-bit integer
-	newValue := 10*int64(value) + int64(digit)
-
-	// Check for positive overflow
-	if isPositive && newValue > int64(math.MaxInt32) {
-		return math.MaxInt32, true
-	}
-
-	// Check for negative overflow
-	if !isPositive && -newValue < int64(math.MinInt32) {
+	// Check for potential negative overflow
+	if !isPositive && (-value < minIntQuotient || (-value == minIntQuotient && -digit < minIntRemainder)) {
 		return math.MinInt32, true
 	}
 
-	// Otherwise, no overflow
-	return int(newValue), false
+	// Check for potnetial positive overflow
+	if isPositive && (value > maxIntQuotient || (value == maxIntQuotient && digit > maxIntRemainder)) {
+		return math.MaxInt32, true
+	}
+
+	// Otherwise, we can safely combine value with digit without overflow
+	return 10*value + digit, false
 }
