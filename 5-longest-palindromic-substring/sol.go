@@ -2,73 +2,43 @@ package main
 
 func main() {}
 
-// Running time: O(n)
-// Memory usage: O(n)
+// Running time: O(n^2)
+// Memory usage: O(n^2) => Can be reduced to constant with "expand from center" approach
+// See Manacher's Algorithm for the ellusive linear time strategy
 func longestPalindrome(input string) string {
-	// Convert input string to slice of runes to make
-	// indexing easier
 	runes := []rune(input)
 
-	// This case will break indexing below, so handle explicitly
-	if len(runes) == 1 {
-		return input
+	// isPalindrome[row][col] is true if the substring that starts at row and
+	// ends at col is a palindrome, and false otherwise
+	isPalindrome := make([][]bool, len(runes))
+	for row := range isPalindrome {
+		isPalindrome[row] = make([]bool, len(runes))
+		isPalindrome[row][row] = true
 	}
 
-	// Find the number of consecutively repeated runes, starting with each rune
-	// in the input. repeats[ii] = kk  means there is a kk-length substring of
-	// the same rune starting at index ii of the input
-	repeats := countRepeats(runes)
+	bestRow := 0
+	bestCol := 0
 
-	// lengths[ii] is the length of the longest palindromic substring that
-	// starts at index ii
-	lengths := make([]int, len(runes), len(runes))
-	// Final element must have substring length of one
-	lengths[len(runes)-1] = 1
+	for row := len(runes) - 1; row >= 0; row-- {
+		for col := row; col < len(runes); col++ {
+			if col-row == 1 {
+				// For two-character strings, just make sure first and second
+				// characters are the same
+				isPalindrome[row][col] = runes[row] == runes[col]
+			} else if col-row > 1 {
+				// For longer strings, make sure characters at either end are
+				// the same, and that the substring in the middle is a palindrome
+				isPalindrome[row][col] = runes[row] == runes[col] && isPalindrome[row+1][col-1]
+			}
 
-	for ii := len(runes) - 2; ii >= 0; ii-- {
-		// If we can add the current rune to either end of the best postfix substring
-		// to extend the palindrome, this will give us the biggest potenial increase in length
-		trailingIndex := ii + lengths[ii+1] + 1
-		if trailingIndex < len(runes) && runes[ii] == runes[trailingIndex] {
-			lengths[ii] = lengths[ii+1] + 2
-		} else if ii+2 < len(runes) && repeats[ii] == 1 && runes[ii] == runes[ii+2] {
-			// Otherwise, we need to start a new palindrome starting from this rune
-			lengths[ii] = 3
-		} else {
-			// Otherwise, our new palindrome can only come from repeated characters
-			lengths[ii] = repeats[ii]
+			// After making assingment, check if we've found a new longest substring. Ties are
+			// broken by earlier start index
+			if isPalindrome[row][col] && col-row >= bestCol-bestRow {
+				bestRow = row
+				bestCol = col
+			}
 		}
 	}
 
-	return findLongest(runes, lengths)
-}
-
-func countRepeats(runes []rune) []int {
-	repeats := make([]int, len(runes), len(runes))
-	repeats[len(runes)-1] = 1
-
-	for ii := len(runes) - 2; ii >= 0; ii-- {
-		if runes[ii] == runes[ii+1] {
-			repeats[ii] = repeats[ii+1] + 1
-		} else {
-			repeats[ii] = 1
-		}
-	}
-
-	return repeats
-}
-
-func findLongest(runes []rune, lengths []int) string {
-	// Slice values must be positive
-	maxIndex := 0
-	maxLength := 0
-
-	for ii, ll := range lengths {
-		if ll > maxLength {
-			maxIndex = ii
-			maxLength = ll
-		}
-	}
-
-	return string(runes[maxIndex : maxIndex+maxLength])
+	return string(runes[bestRow : bestCol+1])
 }
