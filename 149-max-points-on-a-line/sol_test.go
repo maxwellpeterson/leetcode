@@ -22,8 +22,20 @@ func TestDuplicate(t *testing.T) {
 	testCase(t, [][]int{{1, 1}, {2, 2}, {3, 3}, {3, 3}}, 4)
 }
 
-func TestCrossedLines(t *testing.T) {
+func TestCrossLines(t *testing.T) {
 	testCase(t, [][]int{{1, 1}, {3, 2}, {5, 3}, {4, 1}, {2, 3}, {1, 4}}, 4)
+}
+
+func TestCrossOrigin(t *testing.T) {
+	testCase(t, [][]int{{-1, -1}, {0, 0}, {1, 1}}, 3)
+}
+
+func TestCrossOriginReverse(t *testing.T) {
+	testCase(t, [][]int{{1, -1}, {0, 0}, {-1, 1}, {4, -4}, {-10, 10}}, 5)
+}
+
+func TestDoubleCrossOrigin(t *testing.T) {
+	testCase(t, [][]int{{-1, -1}, {4, 4}, {1, 1}, {-2, 2}, {-1, 1}, {3, -3}, {10, -10}}, 4)
 }
 
 func TestVerticalLine(t *testing.T) {

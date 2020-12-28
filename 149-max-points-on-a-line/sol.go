@@ -6,24 +6,29 @@ type point struct {
 	x, y int
 }
 
-// A line defined by y = mx + b where m and b
-// are stored in franctional form
+func makePoint(pos []int) point {
+	return point{x: pos[0], y: pos[1]}
+}
+
+// A line defined by y = mx + b where m and b are stored in reduced
+// fractional form, meaning m = nNum/mDen and b = bNum/bDen. Except
+// if we're dealing with a vertical line, in which case the isVert
+// and xVal fields are used
 type line struct {
 	isVert                       bool
 	xVal, mNum, mDen, bNum, bDen int
 }
 
-func makeLine(x0, y0, x1, y1 int) line {
-	mNum := y1 - y0
-	mDen := x1 - x0
-	if mDen == 0 {
-		return line{isVert: true, xVal: x0}
+func makeLine(p0, p1 point) line {
+	if p0.x == p1.x {
+		return line{isVert: true, xVal: p0.x}
 	}
+
+	mNum, mDen := p1.y-p0.y, p1.x-p0.x
 	mGcd := gcd(mNum, mDen)
 	mNum, mDen = mNum/mGcd, mDen/mGcd
 
-	bNum := y0*mDen - x0*mNum
-	bDen := mDen
+	bNum, bDen := p0.y*mDen-p0.x*mNum, mDen
 	bGcd := gcd(bNum, bDen)
 	bNum, bDen = bNum/bGcd, bDen/bGcd
 
@@ -37,32 +42,47 @@ func maxPoints(points [][]int) int {
 		return len(points)
 	}
 
-	pointsPerLine := map[line]map[point]bool{}
-	bestLineCount := 0
+	// Keeps track of number of times each distinct point appears in input
+	duplicates := map[point]int{}
+	for _, pp := range points {
+		duplicates[makePoint(pp)]++
+	}
 
-	for ii, p0 := range points {
+	// Keeps track of the set of distinct points that fall on each line
+	pointSets := map[line]map[point]bool{}
+	// Keeps track of the total number of points that fall on each line
+	pointCounts := map[line]int{}
+	maxPointCount := 0
+
+	for ii, pp := range points {
 		for jj := ii + 1; jj < len(points); jj++ {
-			// Create line defined by current pair of points, and find recorded
-			// points that fall on this line
-			x0, y0, x1, y1 := p0[0], p0[1], points[jj][0], points[jj][1]
-			currentLine := makeLine(x0, y0, x1, y1)
+			// Construct line defined by current pair of points
+			p0, p1 := makePoint(pp), makePoint(points[jj])
+			currentLine := makeLine(p0, p1)
 
-			// Second-tier map may not be instantiated yet
-			if pointsPerLine[currentLine] == nil {
-				pointsPerLine[currentLine] = map[point]bool{}
+			// Make sure point set for current line has been instantiated
+			if pointSets[currentLine] == nil {
+				pointSets[currentLine] = map[point]bool{}
 			}
 
-			// Add current points to current line (map entries may already exist)
-			pointsPerLine[currentLine][point{x0, y0}] = true
-			pointsPerLine[currentLine][point{x1, y1}] = true
-
-			if len(pointsPerLine[currentLine]) > bestLineCount {
-				bestLineCount = len(pointsPerLine[currentLine])
+			// Update set of points that fall on current line and best
+			// total line count if needed
+			currentPointSet := pointSets[currentLine]
+			if !currentPointSet[p0] {
+				currentPointSet[p0] = true
+				pointCounts[currentLine] += duplicates[p0]
+			}
+			if !currentPointSet[p1] {
+				currentPointSet[p1] = true
+				pointCounts[currentLine] += duplicates[p1]
+			}
+			if pointCounts[currentLine] > maxPointCount {
+				maxPointCount = pointCounts[currentLine]
 			}
 		}
 	}
 
-	return bestLineCount
+	return maxPointCount
 }
 
 // See en.wikipedia.org/wiki/Euclidean_algorithm
