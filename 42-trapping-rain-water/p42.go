@@ -14,8 +14,8 @@ func trap(height []int) int {
 	// Find the tallest column to the left of each column
 	// in the height array
 	tallestToLeft := make([]int, length)
-	tallestToLeft[0] = 0
-	for ii := 1; ii < length; ii++ {
+	// Value at zero index is zeroed by default
+	for ii := 1; ii < length-1; ii++ {
 		tallestToLeft[ii] = max(tallestToLeft[ii-1], height[ii-1])
 	}
 
@@ -27,7 +27,7 @@ func trap(height []int) int {
 	tallestToRight := 0
 	totalWater := 0
 
-	for ii := length - 2; ii >= 0; ii-- {
+	for ii := length - 2; ii >= 1; ii-- {
 		tallestToRight = max(tallestToRight, height[ii+1])
 		maxWaterHeight := min(tallestToLeft[ii], tallestToRight)
 		totalWater += max(0, maxWaterHeight-height[ii])
