@@ -10,79 +10,67 @@ func makePoint(pos []int) point {
 	return point{x: pos[0], y: pos[1]}
 }
 
-// A line defined by y = mx + b where m and b are stored in reduced
-// fractional form, meaning m = nNum/mDen and b = bNum/bDen. Except
-// if we're dealing with a vertical line, in which case the isVert
-// and xVal fields are used
-type line struct {
-	isVert                       bool
-	xVal, mNum, mDen, bNum, bDen int
+type slope struct {
+	dy, dx int
 }
 
-func makeLine(p0, p1 point) line {
+func makeSlope(p0, p1 point) slope {
 	if p0.x == p1.x {
-		return line{isVert: true, xVal: p0.x}
+		return slope{}
 	}
 
-	mNum, mDen := p1.y-p0.y, p1.x-p0.x
-	mGcd := gcd(mNum, mDen)
-	mNum, mDen = mNum/mGcd, mDen/mGcd
+	dy, dx := p1.y-p0.y, p1.x-p0.x
+	gcd := gcd(dy, dx)
+	dy, dx = dy/gcd, dx/gcd
 
-	bNum, bDen := p0.y*mDen-p0.x*mNum, mDen
-	bGcd := gcd(bNum, bDen)
-	bNum, bDen = bNum/bGcd, bDen/bGcd
-
-	return line{mNum: mNum, mDen: mDen, bNum: bNum, bDen: bDen}
+	return slope{dy: dy, dx: dx}
 }
 
-// Running time:
-// Memory usage:
+// Running time: O(n^2)
+// Memory usage: O(n^2) => Not sure about this, see how map is re-used in main loop
 func maxPoints(points [][]int) int {
 	if len(points) <= 2 {
 		return len(points)
 	}
 
-	// Keeps track of number of times each distinct point appears in input
-	duplicates := map[point]int{}
-	for _, pp := range points {
-		duplicates[makePoint(pp)]++
-	}
+	globalMaxCount := 0
 
-	// Keeps track of the set of distinct points that fall on each line
-	pointSets := map[line]map[point]bool{}
-	// Keeps track of the total number of points that fall on each line
-	pointCounts := map[line]int{}
-	maxPointCount := 0
+	for ii := range points {
+		// Tracks slope of line between current point and
+		// every other not yet compared
+		slopeCounts := map[slope]int{}
+		// Tracks optimal value for current point
+		localMaxCount := 1
+		// Tracks number of duplicates of current point
+		duplicateCount := 0
 
-	for ii, pp := range points {
+		// Compare current point to all others not yet compared
 		for jj := ii + 1; jj < len(points); jj++ {
-			// Construct line defined by current pair of points
-			p0, p1 := makePoint(pp), makePoint(points[jj])
-			currentLine := makeLine(p0, p1)
+			p0, p1 := makePoint(points[ii]), makePoint(points[jj])
 
-			// Make sure point set for current line has been instantiated
-			if pointSets[currentLine] == nil {
-				pointSets[currentLine] = map[point]bool{}
+			// Check for duplicates and update counter if needed
+			if p0 == p1 {
+				duplicateCount++
+				continue
 			}
 
-			// Update set of points that fall on current line and best
-			// total line count if needed
-			currentPointSet := pointSets[currentLine]
-			if !currentPointSet[p0] {
-				currentPointSet[p0] = true
-				pointCounts[currentLine] += duplicates[p0]
+			// Calculate slope and update associated counter
+			ss := makeSlope(p0, p1)
+			if slopeCounts[ss] == 0 {
+				slopeCounts[ss] = 2
+			} else {
+				slopeCounts[ss]++
 			}
-			if !currentPointSet[p1] {
-				currentPointSet[p1] = true
-				pointCounts[currentLine] += duplicates[p1]
-			}
-			if pointCounts[currentLine] > maxPointCount {
-				maxPointCount = pointCounts[currentLine]
-			}
+
+			// Update max slope count for this point if needed
+			localMaxCount = max(localMaxCount, slopeCounts[ss])
 		}
+
+		// Update global max point count if needed
+		globalMaxCount = max(globalMaxCount, localMaxCount+duplicateCount)
 	}
 
-	return maxPointCount
+	return globalMaxCount
 }
 
 // See en.wikipedia.org/wiki/Euclidean_algorithm
@@ -91,4 +79,11 @@ func gcd(aa, bb int) int {
 		aa, bb = bb, aa%bb
 	}
 	return aa
+}
+
+func max(aa, bb int) int {
+	if aa > bb {
+		return aa
+	}
+	return bb
 }
