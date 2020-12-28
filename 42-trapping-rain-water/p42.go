@@ -2,6 +2,8 @@ package main
 
 func main() {}
 
+// Running time: O(n)
+// Memory usage: O(n)
 func trap(height []int) int {
 	length := len(height)
 
@@ -17,21 +19,18 @@ func trap(height []int) int {
 		tallestToLeft[ii] = max(tallestToLeft[ii-1], height[ii-1])
 	}
 
-	// Find tallest column to the right of each column
-	// in the height array
-	tallestToRight := make([]int, length)
-	tallestToRight[length-1] = 0
-	for ii := length - 2; ii >= 0; ii-- {
-		tallestToRight[ii] = max(tallestToRight[ii+1], height[ii+1])
-	}
-
-	// Calculate the units of water stacked on top of each column,
+	// Find tallest column to the right of each column in the height array,
+	// and accumulate the total units of water stacked on top of each column,
 	// using the heights of the tallest columns on either side, which
 	// form a basin where water can collect
+
+	tallestToRight := 0
 	totalWater := 0
-	for ii, colHeight := range height {
-		maxWaterHeight := min(tallestToLeft[ii], tallestToRight[ii])
-		totalWater += max(0, maxWaterHeight-colHeight)
+
+	for ii := length - 2; ii >= 0; ii-- {
+		tallestToRight = max(tallestToRight, height[ii+1])
+		maxWaterHeight := min(tallestToLeft[ii], tallestToRight)
+		totalWater += max(0, maxWaterHeight-height[ii])
 	}
 
 	return totalWater
