@@ -1,70 +1,121 @@
 package main
 
-import "math"
+import (
+	"container/heap"
+)
 
 func main() {}
 
-// Running time: O(mn)
-// Memory usage: O(mn)
-func trapRainWater(height [][]int) int {
-	if len(height) <= 2 || len(height[0]) <= 2 {
+// Running time:
+// Memory usage:
+func trapRainWater(heights [][]int) int {
+	if len(heights) <= 2 || len(heights[0]) <= 2 {
 		return 0
 	}
 
-	rows, cols := len(height), len(height[0])
+	rows, cols := len(heights), len(heights[0])
+	discovered, pQueue := initializeSearch(rows, cols, heights)
 
-	// Create two m x n arrays for tracking the tallest columns up and to the
-	// right from each column in the elevation. Also initialize the top and bottom
-	// rows that don't get initialized by the loop below, ignoring their values
-	// since these edge columns will never have any water on top of them
-	tallestUp, tallestLeft := make([][]int, rows), make([][]int, rows)
-	tallestUp[0], tallestLeft[0] = make([]int, cols), make([]int, cols)
-	tallestUp[rows-1], tallestLeft[rows-1] = make([]int, cols), make([]int, cols)
+	// Main search phase:
+	// - While priority queue is not empty, run modified BFS, noting height of root cell
+	//   (Assume neighbor is not discovered, and mark discovered)
+	//   - If neighbor taller than root, do not add to local queue, add to priority queue
+	//   - If neighbor same height as root, treat normally
+	//   - If neighbor shorter than root, treat normally, but add height difference to water counter
 
-	// Fill in the values for the tallestUp and tallestLeft arrays with a single
-	// pass through the input array
-	for row := 1; row < rows-1; row++ {
-		tallestUp[row], tallestLeft[row] = make([]int, cols), make([]int, cols)
-		for col := 1; col < cols-1; col++ {
-			tallestUp[row][col] = max(tallestUp[row-1][col], height[row-1][col])
-			tallestLeft[row][col] = max(tallestLeft[row][col-1], height[row][col-1])
-		}
-	}
-
-	// On second pass through the input array, calculate the remaining tallest columns in
-	// the down and right directions, which don't all need to be remembered. Use these
-	// values, along with the tallestUp and tallestLeft arrays, to compute the maximum
-	// water height for each cell and total water captured
-
-	tallestDown := make([]int, cols)
 	totalWater := 0
 
-	for row := rows - 2; row >= 1; row-- {
-		tallestRight := 0
-		for col := cols - 2; col >= 1; col-- {
-			tallestDown[col] = max(tallestDown[col], height[row+1][col])
-			tallestRight = max(tallestRight, height[row][col+1])
-			maxWaterHeight := min(tallestUp[row][col], tallestDown[col], tallestLeft[row][col], tallestRight)
-			totalWater += max(0, maxWaterHeight-height[row][col])
+	for pQueue.Len() > 0 {
+		root := heap.Pop(&pQueue).(*Cell)
+		neighbors := getNeighbors(root.row, root.col, rows, cols, heights, discovered)
+		for _, neighbor := range neighbors {
+			if neighbor.height < root.height {
+				totalWater += root.height - neighbor.height
+				neighbor.height = root.height
+			}
+			heap.Push(&pQueue, neighbor)
 		}
 	}
 
 	return totalWater
 }
 
-func min(vals ...int) int {
-	minVal := math.MaxInt32
-	for _, val := range vals {
-		if val < minVal {
-			minVal = val
+func getNeighbors(row, col, rows, cols int, heights [][]int, discovered [][]bool) []*Cell {
+	neighbors := []*Cell{}
+	for _, offset := range [][]int{{1, 0}, {0, 1}, {-1, 0}, {0, -1}} {
+		offRow, offCol := row+offset[0], col+offset[1]
+		if offRow >= 0 && offRow < rows && offCol >= 0 && offCol < cols && !discovered[offRow][offCol] {
+			neighbors = append(neighbors, &Cell{row: offRow, col: offCol, height: heights[offRow][offCol]})
 		}
 	}
-	return minVal
+	return neighbors
 }
 
-func max(aa, bb int) int {
-	if aa > bb {
-		return aa
+// Initialization:
+// - Iterate over all nodes along border of input array
+//   - Mark as discovered
+//   - Add to priority queue based on height
+
+func initializeSearch(rows, cols int, heights [][]int) ([][]bool, PriorityQueue) {
+	discovered := make([][]bool, rows)
+	pQueue := PriorityQueue{}
+	heap.Init(&pQueue)
+
+	// Initialize top and bottom rows
+	for _, row := range []int{0, rows - 1} {
+		discovered[row] = make([]bool, cols)
+		for col := range discovered[row] {
+			discovered[row][col] = true
+			heap.Push(&pQueue, &Cell{row: row, col: col, height: heights[row][col]})
+		}
 	}
-	return bb
+
+	// Initialize left and right columns, between top and bottom rows
+	for row := 1; row < rows-1; row++ {
+		discovered[row] = make([]bool, cols)
+		for col := range []int{0, cols - 1} {
+			discovered[row][col] = true
+			heap.Push(&pQueue, &Cell{row: row, col: col, height: heights[row][col]})
+		}
+	}
+
+	return discovered, pQueue
+}
+
+type Cell struct {
+	row, col, height, index int
+}
+
+// Implements heap.Interface and holds Cells
+type PriorityQueue []*Cell
+
+func (pQueue PriorityQueue) Len() int {
+	return len(pQueue)
+}
+
+func (pQueue PriorityQueue) Less(ii, jj int) bool {
+	return pQueue[ii].height < pQueue[jj].height
+}
+
+func (pQueue PriorityQueue) Swap(ii, jj int) {
+	pQueue[ii], pQueue[jj] = pQueue[jj], pQueue[ii]
+	pQueue[ii].index = ii
+	pQueue[jj].index = jj
+}
+
+func (pQueue *PriorityQueue) Push(x interface{}) {
+	queueLength := len(*pQueue)
+	cell := x.(*Cell)
+	cell.index = queueLength
+	*pQueue = append(*pQueue, cell)
+}
+
+func (pQueue *PriorityQueue) Pop() interface{} {
+	oldQueue := *pQueue
+	oldLength := len(oldQueue)
+	cell := oldQueue[oldLength-1]
+	oldQueue[oldLength-1] = nil
+	cell.index = -1
+	*pQueue = oldQueue[:oldLength-1]
+	return cell
 }

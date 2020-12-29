@@ -62,6 +62,14 @@ func TestDifferentTrapElevations(t *testing.T) {
 	testCase(t, [][]int{{1, 3, 3, 3, 2}, {2, 1, 4, 2, 4}, {3, 2, 2, 3, 1}}, 2)
 }
 
+func TestSpillUpLeft(t *testing.T) {
+	testCase(t, [][]int{{0, 0, 1, 0, 0}, {0, 0, 0, 1, 0}, {1, 0, 0, 0, 1}, {0, 1, 0, 1, 0}, {0, 0, 1, 0, 0}}, 0)
+}
+
+func TestComplexElevation(t *testing.T) {
+	testCase(t, [][]int{{12, 13, 1, 12}, {13, 4, 13, 12}, {13, 8, 10, 12}, {12, 13, 12, 12}, {13, 13, 13, 13}}, 14)
+}
+
 func testCase(t *testing.T, input [][]int, expected int) {
 	output := trapRainWater(input)
 	if output != expected {
