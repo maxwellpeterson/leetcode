@@ -2,8 +2,6 @@ package main
 
 func main() {}
 
-// Running time: O(n)
-// Memory usage: O(n)
 func lengthOfLongestSubstring(input string) int {
 	// Convert input string to slice of runes to make
 	// indexing easier
@@ -17,7 +15,7 @@ func lengthOfLongestSubstring(input string) int {
 		return 1
 	}
 
-	// Find the index of the next occurence of each rune in the input string,
+	// Find the index of the next occurrence of each rune in the input string,
 	// which is len(input) if rune does not appear again
 	nextIndex := findNextIndex(runes)
 

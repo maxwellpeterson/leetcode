@@ -2,9 +2,6 @@ package main
 
 func main() {}
 
-// Running time: O(n^2)
-// Memory usage: O(n^2) => Can be reduced to constant with "expand from center" approach
-// See Manacher's Algorithm for the ellusive linear time strategy
 func longestPalindrome(input string) string {
 	runes := []rune(input)
 
@@ -31,7 +28,7 @@ func longestPalindrome(input string) string {
 				isPalindrome[row][col] = runes[row] == runes[col] && isPalindrome[row+1][col-1]
 			}
 
-			// After making assingment, check if we've found a new longest substring. Ties are
+			// After making assignment, check if we've found a new longest substring. Ties are
 			// broken by earlier start index
 			if isPalindrome[row][col] && col-row >= bestCol-bestRow {
 				bestRow = row

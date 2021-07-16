@@ -9,8 +9,6 @@ const maxIntRemainder = math.MaxInt32 % 10
 
 func main() {}
 
-// Running time: O(n)
-// Memory usage: O(n) => Would be O(1) without string to slice conversion
 func myAtoi(input string) int {
 	// Convert input string to slice of runes to make
 	// indexing easier
