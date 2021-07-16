@@ -6,8 +6,6 @@ type Pair struct {
 	startIndex, maxLenBeforeStart int
 }
 
-// Running time: O(n)
-// Memory usage: O(n) (But not GC efficient?)
 func longestValidParentheses(input string) int {
 	runes := []rune(input)
 

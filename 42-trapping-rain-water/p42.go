@@ -2,8 +2,6 @@ package main
 
 func main() {}
 
-// Running time: O(n)
-// Memory usage: O(n)
 func trap(height []int) int {
 	length := len(height)
 
