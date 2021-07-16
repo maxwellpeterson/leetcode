@@ -29,6 +29,6 @@ func TestFailed(t *testing.T) {
 func testCase(t *testing.T, input []int, kk int, expected int) {
 	output := shortestSubarray(input, kk)
 	if output != expected {
-		t.Fatalf(`maxArea(%v) = %v but want %v`, input, output, expected)
+		t.Fatalf(`shortestSubarray(%v, %v) = %v but want %v`, input, kk, output, expected)
 	}
 }
