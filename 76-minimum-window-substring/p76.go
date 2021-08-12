@@ -5,47 +5,45 @@ func main() {}
 func minWindow(ss string, tt string) string {
 	sequence, target := []rune(ss), []rune(tt)
 
-	neededRunes := map[rune]int{}
-	remainingNeededRunes := len(target)
+	neededCount := map[rune]int{}
+	totalNeeded := len(target)
 
 	for _, rr := range target {
-		neededRunes[rr]++
+		neededCount[rr]++
 	}
 
-	start, end := 0, 0
-	shortestStart, shortestEnd := 0, len(sequence)
+	start := 0
+	optStart, optEnd := 0, len(sequence)-1
 
-	for ; end < len(sequence); end++ {
-		if needed, exists := neededRunes[sequence[end]]; exists {
-			neededRunes[sequence[end]]--
-
+	for end, endRune := range sequence {
+		if needed, exists := neededCount[endRune]; exists {
 			if needed > 0 {
-				remainingNeededRunes--
+				totalNeeded--
 			}
-			if remainingNeededRunes == 0 {
+
+			neededCount[endRune]--
+
+			if totalNeeded == 0 {
 				for {
-					if needed, exists := neededRunes[sequence[start]]; exists && needed == 0 {
-						if end+1-start < shortestEnd-shortestStart {
-							shortestStart, shortestEnd = start, end+1
+					if needed, exists := neededCount[sequence[start]]; exists && needed == 0 {
+						if end-start < optEnd-optStart {
+							optStart, optEnd = start, end
 						}
 
 						break
 					} else if exists {
-						neededRunes[sequence[start]]++
+						neededCount[sequence[start]]++
 					}
 
 					start++
 				}
 			}
-
-		} else if remainingNeededRunes == len(target) {
-			start++
 		}
 	}
 
-	if len(target) == 0 || remainingNeededRunes > 0 {
+	if len(target) == 0 || totalNeeded > 0 {
 		return ""
 	} else {
-		return string(sequence[shortestStart:shortestEnd])
+		return string(sequence[optStart : optEnd+1])
 	}
 }
