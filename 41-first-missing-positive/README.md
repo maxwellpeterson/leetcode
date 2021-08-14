@@ -2,6 +2,6 @@
 
 **Difficulty:** Hard
 
-**Runtime:** O(n), 46th percentile
+**Runtime:** O(n), 76th percentile
 
-**Memory:** O(1), 34th percentile
+**Memory:** O(1), 45th percentile

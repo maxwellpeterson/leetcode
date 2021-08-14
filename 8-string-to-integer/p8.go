@@ -90,7 +90,7 @@ func checkOverflow(value, digit int, isPositive bool) (adjusted int, overflow bo
 		return math.MinInt32, true
 	}
 
-	// Check for potnetial positive overflow
+	// Check for potential positive overflow
 	if isPositive && (value > maxIntQuotient || (value == maxIntQuotient && digit > maxIntRemainder)) {
 		return math.MaxInt32, true
 	}

@@ -4,38 +4,34 @@ func main() {}
 
 func longestPalindrome(input string) string {
 	runes := []rune(input)
-
-	// isPalindrome[row][col] is true if the substring that starts at row and
-	// ends at col is a palindrome, and false otherwise
 	isPalindrome := make([][]bool, len(runes))
-	for row := range isPalindrome {
-		isPalindrome[row] = make([]bool, len(runes))
-		isPalindrome[row][row] = true
-	}
 
-	bestRow := 0
-	bestCol := 0
+	bestStart := 0
+	bestEnd := 0
 
-	for row := len(runes) - 1; row >= 0; row-- {
-		for col := row; col < len(runes); col++ {
-			if col-row == 1 {
+	for start := len(runes) - 1; start >= 0; start-- {
+		isPalindrome[start] = make([]bool, len(runes))
+		isPalindrome[start][start] = true
+
+		for end := start; end < len(runes); end++ {
+			if end-start == 1 {
 				// For two-character strings, just make sure first and second
-				// characters are the same
-				isPalindrome[row][col] = runes[row] == runes[col]
-			} else if col-row > 1 {
+				// characters are the same.
+				isPalindrome[start][end] = runes[start] == runes[end]
+			} else if end-start > 1 {
 				// For longer strings, make sure characters at either end are
-				// the same, and that the substring in the middle is a palindrome
-				isPalindrome[row][col] = runes[row] == runes[col] && isPalindrome[row+1][col-1]
+				// the same, and that the substring in the middle is a palindrome.
+				isPalindrome[start][end] = runes[start] == runes[end] && isPalindrome[start+1][end-1]
 			}
 
 			// After making assignment, check if we've found a new longest substring. Ties are
-			// broken by earlier start index
-			if isPalindrome[row][col] && col-row >= bestCol-bestRow {
-				bestRow = row
-				bestCol = col
+			// broken by earlier start index.
+			if isPalindrome[start][end] && end-start >= bestEnd-bestStart {
+				bestStart = start
+				bestEnd = end
 			}
 		}
 	}
 
-	return string(runes[bestRow : bestCol+1])
+	return string(runes[bestStart : bestEnd+1])
 }

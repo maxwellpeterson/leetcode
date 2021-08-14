@@ -2,14 +2,19 @@ package main
 
 func main() {}
 
-func twoSum(nums []int, target int) []int {
-	comps := map[int]int{} // Complements
-	for index, value := range nums {
-		compIndex, exists := comps[value]
+func twoSum(input []int, target int) []int {
+	// Complements of elements of input array
+	complements := map[int]int{}
+
+	for index, value := range input {
+		complementIndex, exists := complements[value]
 		if exists {
-			return []int{compIndex, index}
+			return []int{complementIndex, index}
+		} else {
+			complements[target-value] = index
 		}
-		comps[target-value] = index
 	}
-	return nil // Solution always exists
+
+	// Solution always exists
+	return nil
 }

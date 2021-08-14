@@ -2,6 +2,6 @@
 
 **Difficulty:** Medium
 
-**Runtime:** O(n), 90th percentile
+**Runtime:** O(n), 100th percentile
 
-**Memory:** O(n), 26th percentile
+**Memory:** O(n), 36th percentile
