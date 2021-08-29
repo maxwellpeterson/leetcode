@@ -2,6 +2,6 @@
 
 **Difficulty:** Medium
 
-**Runtime:** O(n^2), 50th percentile
+**Runtime:** O(n^2), 92nd percentile
 
-**Memory:** Depends on solution size, 29th percentile
+**Memory:** Depends on solution size but O(n^2), 54th percentile

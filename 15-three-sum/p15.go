@@ -9,19 +9,19 @@ func threeSum(nums []int) [][]int {
 
 	sort.Ints(nums)
 
-	for ii := 0; ii < len(nums); ii = shiftRight(ii, nums) {
-		if len(nums[ii:]) >= 3 {
-			jj := ii + 1
-			kk := len(nums) - 1
-			for jj < kk {
-				if nums[ii]+nums[jj]+nums[kk] < 0 {
-					jj++
-				} else if nums[ii]+nums[jj]+nums[kk] == 0 {
-					results = append(results, []int{nums[ii], nums[jj], nums[kk]})
-					jj = shiftRight(jj, nums)
-					kk = shiftLeft(kk, nums)
+	for first := 0; first <= len(nums)-3; first = shiftRight(first, nums) {
+		if nums[first] <= 0 {
+			middle := first + 1
+			last := len(nums) - 1
+			for middle < last && nums[last] >= 0 {
+				if nums[first]+nums[middle]+nums[last] < 0 {
+					middle++
+				} else if nums[first]+nums[middle]+nums[last] == 0 {
+					results = append(results, []int{nums[first], nums[middle], nums[last]})
+					middle = shiftRight(middle, nums)
+					last = shiftLeft(last, nums)
 				} else {
-					kk--
+					last--
 				}
 			}
 		}
